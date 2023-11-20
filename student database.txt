@@ -1,0 +1,282 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Subject {
+    char name[50];
+    float marks;
+} Subject;
+
+typedef struct Student {
+    int id;
+    char name[50];
+    float gpa;
+    char dep[10];
+    int year;
+    Subject subjects[5]; 
+} Student;
+
+typedef struct Node {
+    Student data;
+    struct Node* next;
+} Node;
+
+Node* head = NULL;
+
+void insertStudent() {
+    Student student;
+    char sub[10];
+    char dep[10];
+    int year;
+
+    printf("Enter Student ID: ");
+    scanf("%d", &student.id);
+    getchar();
+    printf("Enter Student Name: ");
+    fgets(student.name, sizeof(student.name), stdin);
+    strtok(student.name, "\n");
+    printf("Enter Student GPA: ");
+    scanf("%f", &student.gpa);
+    printf("Enter dep:");
+    scanf("%s",dep);
+    printf("Enter year:");
+    scanf("%d",&year);
+
+    for (int i = 1; i < 4; i++) {
+        printf("\nEnter Subject Name %d: ",i);
+        scanf("%s",sub);
+        
+        fgets(student.subjects[i].name, sizeof(student.subjects[i].name), stdin);
+       
+        if (strlen(student.subjects[i].name) == 0) {
+            break;
+        }
+        printf("\nEnter Marks for %s: ", sub);
+        scanf("%f", &student.subjects[i].marks);
+    }
+
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = student;
+    newNode->next = head;
+    head = newNode;
+    printf("Student added to the database.\n");
+}
+
+int login() {
+    int enteredId;
+    printf("Enter your Student ID for login: ");
+    scanf("%d", &enteredId);
+
+    Node* current = head;
+    while (current != NULL) {
+        if (current->data.id == enteredId) {
+            return 1;
+        }
+        current = current->next;
+    }
+
+    printf("Login failed. No student found with the ID: %d\n", enteredId);
+    return 0;
+}
+
+void updateStudent() {
+    int updateId;
+    printf("Enter Student ID to update details: ");
+    scanf("%d", &updateId);
+
+    Node* current = head;
+    while (current != NULL) {
+        if (current->data.id == updateId) {
+            printf("Enter updated Student Name: ");
+            getchar(); 
+            fgets(current->data.name, sizeof(current->data.name), stdin);
+            strtok(current->data.name, "\n");
+            printf("Enter updated Student GPA: ");
+            scanf("%f", &current->data.gpa);
+            printf("Student details updated.\n");
+            return;
+        }
+        current = current->next;
+    }
+
+    printf("No student found with the ID: %d\n", updateId);
+}
+
+void deleteStudent() {
+    int deleteId;
+    printf("Enter Student ID to delete: ");
+    scanf("%d", &deleteId);
+
+    Node* current = head;
+    Node* prev = NULL;
+
+    while (current != NULL) {
+        if (current->data.id == deleteId) {
+            if (prev == NULL) {
+                head = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current);
+            printf("Student details deleted.\n");
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    printf("No student found with the ID: %d\n", deleteId);
+}
+
+void searchStudent() {
+    char searchName[50];
+    getchar();
+    printf("Enter the name of the student you want to search: ");
+    fgets(searchName, sizeof(searchName), stdin);
+    strtok(searchName, "\n");
+
+    Node* current = head;
+    while (current != NULL) {
+        if (strcmp(current->data.name, searchName) == 0) {
+            printf("ID: %d, Name: %s, GPA: %.2f\n", current->data.id, current->data.name, current->data.gpa);
+            return;
+        }
+        current = current->next;
+    }
+
+    printf("No student found with the name: %s\n", searchName);
+}
+
+void displayAllStudents() {
+    Node* current = head;
+    while (current != NULL) {
+        printf("ID: %d\n Name: %s\n GPA: %.2f\n Dep:%s\n Year:%d\n", current->data.id, current->data.name, current->data.gpa,current->data.dep,current->data.year);
+        current = current->next;
+    }
+}
+
+float calculateAverageGPA() {
+    if (head == NULL) {
+        return 0.0;
+    }
+
+    float totalGPA = 0.0;
+    int studentCount = 0;
+
+    Node* current = head;
+    while (current != NULL) {
+        totalGPA += current->data.gpa;
+        studentCount++;
+        current = current->next;
+    }
+
+    return totalGPA / studentCount;
+}
+
+
+
+void displaySubjectMarks() {
+    int id;
+    printf("Enter Student ID to display subject marks: ");
+    scanf("%d", &id);
+
+    Node* current = head;
+    while (current != NULL) {
+        if (current->data.id == id) {
+            printf("Subject Marks for %s (ID: %d):\n", current->data.name, current->data.id);
+            for (int i = 1; i <=3; i++) {
+                if (strlen(current->data.subjects[i].name) == 0) {
+                    break;
+                }
+                printf("Subject: %s, Marks: %.2f\n", current->data.subjects[i].name, current->data.subjects[i].marks);
+            }
+            return;
+        }
+        current = current->next;
+    }
+
+    printf("No student found with the ID: %d\n", id);
+}
+
+
+
+void saveDataToFile() {
+    printf("Data saved");
+
+}
+
+
+
+int main() {
+    int choice;
+    printf("\nStudent Database Menu:\n");
+        printf("1. Insert Student\n");
+        printf("2. Login\n");
+        printf("3. Update Student Details\n");
+        printf("4. Delete Student Details\n");
+        printf("5. Search Student by Name\n");
+        printf("6. Display All Students\n");
+        printf("7. Calculate Average GPA\n");
+        
+        printf("8. Display Subject Marks\n");
+        
+        printf("9. Save Data to File\n");
+        
+        printf("10. Exit\n");
+
+    do {
+        
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                insertStudent();
+                break;
+            case 2:
+                if (login()) {
+                    printf("Login successful!\n");
+                }
+                break;
+            case 3:
+                updateStudent();
+                break;
+            case 4:
+                deleteStudent();
+                break;
+            case 5:
+                searchStudent();
+                break;
+            case 6:
+                displayAllStudents();
+                break;
+            case 7:
+                printf("Average GPA: %.2f\n", calculateAverageGPA());
+                break;
+            
+            
+            case 8:
+                displaySubjectMarks();
+                break;
+            case 9:
+                saveDataToFile();
+                break;
+            
+            
+            case 10:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 15);
+
+    Node* current = head;
+    while (current != NULL) {
+        Node* temp = current;
+        current = current->next;
+        free(temp);
+    }
+
+    return 0;
+}
